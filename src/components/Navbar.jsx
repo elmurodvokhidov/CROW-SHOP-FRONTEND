@@ -18,7 +18,7 @@ export default function Navbar() {
                     <div className="flex items-center">
                         <span className="opacity-[60%] hidden lg:inline">Available 24/7 at </span>
                         <span className="lg:hidden inline "><CiPhone className="text-xl " /></span>
-                        <span className="text-white"> +999 (77) 095 0025</span>
+                        <span className="text-white"> +999 (94) 007 8504</span>
                     </div>
 
                     <div className="hidden sm:flex gap-3 opacity-[60%] md:gap-8">
