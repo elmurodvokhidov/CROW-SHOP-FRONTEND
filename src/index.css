@@ -1,7 +1,10 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+<<<<<<< HEAD
+=======
 
 *{
     font-family: Lato;
 }
+>>>>>>> b743218391cfea31514e880f43a9cf99ab2cbeb8
