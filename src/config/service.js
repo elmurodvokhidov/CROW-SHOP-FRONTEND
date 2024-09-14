@@ -2,18 +2,6 @@ import api from './api';
 
 
 const service = {
-   
-    // async createUser(user) {
-    //     const res = await api.post('/clerk-webhook', {
-    //         id: user.id,
-    //         event: 'user.created',
-    //         username: user.username,
-    //         emailaddres: user.emailaddress[0].emailaddres,
-    //         password: user.password
-    //     });
-    //     return res;
-    // },
-
     async fetchProducts() {
         const response = await api.get('/');
         return response.data.data;
