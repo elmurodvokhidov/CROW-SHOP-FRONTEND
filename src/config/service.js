@@ -1,5 +1,23 @@
 import api from './api';
+import { useSession } from '@clerk/clerk-react';
 
+const { session } = useSession();
+
+const getToken = async () => {
+    if (session) {
+        const token = await session.getToken();
+        console.log("Token: ", token);
+        return token;
+    }
+};
+
+api.interceptors.request.use((req) => {
+    const token = getToken();
+    if (token) {
+        req.headers.Authorization = token;
+    }
+    return req;
+});
 
 const service = {
     async fetchProducts() {
