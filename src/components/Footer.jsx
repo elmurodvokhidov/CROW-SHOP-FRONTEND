@@ -116,7 +116,7 @@ export default function Footer() {
                                 </div>
                             </h3>
 
-                            <div className="flex  justify-between  sm:flex-wrap items-center justify-center space-x-0 sm:space-x-3">
+                            <div className="flex  justify-between  sm:flex-wrap items-center  space-x-0 sm:space-x-3">
                                 <div className="flex items-center space-x-2">
                                     <FaAppStore className="h-10 w-10" />
                                     <span>App Store</span>
