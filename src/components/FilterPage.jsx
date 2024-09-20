@@ -1,13 +1,12 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { CiSearch } from 'react-icons/ci';
 import { FiMinus, FiPlus } from 'react-icons/fi';
 import { HiOutlineXMark } from 'react-icons/hi2';
+import { HiCheck } from "react-icons/hi";
 import { Range, getTrackBackground } from 'react-range';
 
 function FilterPage({
     setShowModal,
-    isCategoryOpen,
-    setIsCategoryOpen,
     setSearchTerm,
     searchTerm,
     filteredCategories,
@@ -17,10 +16,19 @@ function FilterPage({
     priceRange,
     setPriceRange,
     selectedCategories,
-    isPriceOpen,
     handleCategoryChange,
-    setIsPriceOpen
+    selectedColors,
+    handleColorChange,
+    selectedSizes,
+    handleSizeChange
 }) {
+    const [isCategoryOpen, setIsCategoryOpen] = useState(true)
+    const [isPriceOpen, setIsPriceOpen] = useState(false)
+    const [isColorOpen, setIsColorOpen] = useState(false)
+    const [isSizeOpen, setIsSizeOpen] = useState(true)
+    
+
+
     return (
         <div>
             <div className='flex offcanvas-header items-center justify-between border-b pb-4 mb-4 md:hidden'>
@@ -158,6 +166,64 @@ function FilterPage({
                             />
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <div className='border-b-[1px] pb-3'>
+                <div className='flex items-center justify-between mt-3'>
+                    <h1 className='font-semibold'>Colors</h1>
+                    <button
+                        className='text-[#17696A]'
+                        onClick={() => setIsColorOpen(!isColorOpen)}
+                    >
+                        {isColorOpen ? <FiMinus /> : <FiPlus />}
+                    </button>
+                </div>
+                <div className={`flex flex-wrap gap-1 custom-scroll transition-all duration-500 ease-in ${isColorOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}
+                    style={{ overflow: 'hidden', overflowY: 'auto' }}>
+                    {['red', 'green', 'blue', 'black', 'white', 'yellow', 'pink', 'grey', 'brown', 'orange', 'gold'].map(color => (
+                        <div key={color} className='w-14 mt-3 flex flex-col justify-center items-center cursor-pointer' onClick={() => handleColorChange(color)}>
+                            <div className={`border-2 p-[5px] rounded-3xl ${selectedColors.includes(color) ? `border-${color}` : 'border-gray-300'}`}>
+                                <div
+                                    className='relative rounded-2xl'
+                                    style={{ backgroundColor: color, width: '25px', height: '25px' }}>
+                                    {selectedColors.includes(color) && (
+                                        <div className='w-[15px] h-[15px] mt-[5px] ml-[5px] rounded-3xl absolute bg-white inset-0 flex items-center justify-center'>
+                                            <HiCheck className='text-black text-[14px]' />
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                            <label className={`color-button ${selectedColors.includes(color) ? 'selected' : ''}`}>
+                                {color.charAt(0).toUpperCase() + color.slice(1)}
+                            </label>
+                        </div>
+                    ))}
+                </div>
+            </div>
+            <div className='border-b-[1px] pb-3'>
+                <div className='flex items-center justify-between mt-3'>
+                    <h1 className='font-semibold'>Size</h1>
+                    <button
+                        className='text-[#17696A]'
+                        onClick={() => setIsSizeOpen(!isSizeOpen)}
+                    >
+                        {isCategoryOpen ? <FiMinus /> : <FiPlus />}
+                    </button>
+                </div>
+                <div className={`transition-all duration-500 ease-in ${isSizeOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}
+                    style={{ overflow: 'hidden' }}>
+                    {['s', 'm', 'l', 'xl', '2xl', '3xl', "plus size"].map(size => (
+                        <div key={size} className='flex items-center'>
+                            <input
+                                type="checkbox"
+                                className='form-checkbox h-4 w-4'
+                                checked={selectedSizes.includes(size)}
+                                onChange={() => handleSizeChange(size)}
+                            />
+                            <label className='ml-2'>{size.charAt(0).toUpperCase() + size.slice(1)}</label>
+                        </div>
+                    ))}
                 </div>
             </div>
         </div>

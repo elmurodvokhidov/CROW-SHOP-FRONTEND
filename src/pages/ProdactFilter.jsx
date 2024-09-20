@@ -23,13 +23,14 @@ function ProductFilter() {
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [searchTerm, setSearchTerm] = useState(''); // Qidiruv uchun holat
   const [priceRange, setPriceRange] = useState([1, 50]);
-  const [isCategoryOpen, setIsCategoryOpen] = useState(true)
-  const [isPriceOpen, setIsPriceOpen] = useState(false)
   const [currentPage, setCurrentPage] = useState(1);
-  const [productsPerPage] = useState(10);
+  const [productsPerPage] = useState(2);
+  const [selectedColors, setSelectedColors] = useState([]);
+  const [selectedSizes, setSelectedSizes] = useState([]);
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const type = params.get('type');
+
 
   // Fetch products from API
   const fetchProducts = async () => {
@@ -92,11 +93,14 @@ function ProductFilter() {
 
   // Filter products based on type and selected categories
   const filteredProducts = products.filter(product => {
-    const matchesType = type ? product.type.includes(type) : true;
+    const matchesType = type ? product.type?.includes(type) : true;
     const matchesCategory = selectedCategories.length > 0 ? selectedCategories.includes(product.category?._id) : true;
     const matchesPrice = !isNaN(product.price) && product.price >= priceRange[0] && product.price <= priceRange[1];
-    return matchesType && matchesCategory && matchesPrice;
+    const matchesColor = selectedColors.length > 0 ? selectedColors.some(color => product.color?.includes(color)) : true;
+    const matchesSize = selectedSizes.length > 0 ? selectedSizes.some(size => product.size?.includes(size)) : true; // Size filtri
+    return matchesType && matchesCategory && matchesPrice && matchesColor && matchesSize;
   });
+
 
 
   const indexOfLastProduct = currentPage * productsPerPage;
@@ -133,6 +137,26 @@ function ProductFilter() {
     });
   };
 
+  const handleColorChange = (color) => {
+    setSelectedColors(prevColors => {
+      if (prevColors.includes(color)) {
+        return prevColors.filter(c => c !== color);
+      } else {
+        return [...prevColors, color];
+      }
+    });
+  };
+
+  const handleSizeChange = (size) => {
+    setSelectedSizes(prevSizes => {
+      if (prevSizes.includes(size)) {
+        return prevSizes.filter(s => s !== size);
+      } else {
+        return [...prevSizes, size];
+      }
+    });
+  };
+
   return (
     <div className='w-full flex justify-center my-7'>
       <div className='w-[95%] sm:w-[95%] md:w-[92%] lg:w-[80%]'>
@@ -149,7 +173,7 @@ function ProductFilter() {
             </div>
 
             {/* Sorting and Pagination */}
-            <div className='flex md:w-[67%] lg:w-[70%] xl:w-[74%] justify-between'>
+            <div className='flex md:w-[60%] lg:w-[69%] xl:w-[74%] justify-between'>
               <div className='flex justify-start gap-6 md:gap-[10%] lg:gap-[15%]'>
                 <div className='border rounded-[5px] px-3'>
                   <select id="custom-select" className="outline-none w-28 md:w-28 py-[5px]">
@@ -182,6 +206,8 @@ function ProductFilter() {
           </div>
         </div>
 
+
+
         {/* Modal for small screens */}
         {showModal && window.innerWidth < 768 && (
           <div className='fixed top-0 left-0 w-full h-full bg-gray-700 bg-opacity-50 flex items-center z-50'>
@@ -189,8 +215,6 @@ function ProductFilter() {
               <FilterPage
                 showModal={showModal}
                 setShowModal={setShowModal}
-                isCategoryOpen={isCategoryOpen}
-                setIsCategoryOpen={setIsCategoryOpen}
                 setSearchTerm={setSearchTerm}
                 searchTerm={searchTerm}
                 filteredCategories={filteredCategories}
@@ -200,9 +224,11 @@ function ProductFilter() {
                 priceRange={priceRange}
                 setPriceRange={setPriceRange}
                 selectedCategories={selectedCategories}
-                isPriceOpen={isPriceOpen}
                 handleCategoryChange={handleCategoryChange}
-                setIsPriceOpen={setIsPriceOpen}
+                selectedColors={selectedColors}
+                handleColorChange={handleColorChange}
+                selectedSizes={selectedSizes}
+                handleSizeChange={handleSizeChange}
               />
             </div>
           </div>
@@ -211,12 +237,10 @@ function ProductFilter() {
         {/* Filter sidebar for larger screens */}
         <div className={`flex ${showFilters ? 'gap-8' : 'gap-0'} md:flex-row`}>
           {showFilters && !showModal && (
-            <aside className='w-[239px] hidden md:flex flex-col'>
+            <aside className='h-fit sticky top-20 w-[239px] hidden md:flex flex-col'>
               <FilterPage
                 showModal={showModal}
                 setShowModal={setShowModal}
-                isCategoryOpen={isCategoryOpen}
-                setIsCategoryOpen={setIsCategoryOpen}
                 setSearchTerm={setSearchTerm}
                 searchTerm={searchTerm}
                 filteredCategories={filteredCategories}
@@ -226,9 +250,11 @@ function ProductFilter() {
                 priceRange={priceRange}
                 setPriceRange={setPriceRange}
                 selectedCategories={selectedCategories}
-                isPriceOpen={isPriceOpen}
                 handleCategoryChange={handleCategoryChange}
-                setIsPriceOpen={setIsPriceOpen}
+                selectedColors={selectedColors}
+                handleColorChange={handleColorChange}
+                selectedSizes={selectedSizes}
+                handleSizeChange={handleSizeChange}
               />
             </aside>
           )}
