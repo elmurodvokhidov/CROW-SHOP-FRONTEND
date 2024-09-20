@@ -1,10 +1,69 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-<<<<<<< HEAD
-=======
 
-*{
-    font-family: Lato;
+* {
+    font-family: Lato 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
->>>>>>> b743218391cfea31514e880f43a9cf99ab2cbeb8
+
+.custom-checkbox {
+    position: relative;
+    width: 16px;
+    height: 16px;
+    border: 1px solid #00000051;
+    /* Quti chegarasi */
+    border-radius: 4px;
+    cursor: pointer;
+    background-color: transparent;
+    /* Default fon rangi */
+    transition: background-color 0.1s ease;
+    /* Bosilganda fon rangi o'zgarishi */
+}
+
+/* Quti ichidagi belgi uchun */
+.custom-checkbox::after {
+    content: '';
+    position: absolute;
+    width: 5px;
+    height: 9px;
+    border: solid #fff;
+    /* Belgining oq rangi */
+    border-width: 0 3px 3px 0;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(45deg);
+    opacity: 0;
+    transition: opacity 0.1s ease;
+}
+
+/* Checkbox checked bo'lganda fon va belgi ko'rinadi */
+.hidden-checkbox:checked+.custom-checkbox {
+    background-color: #17696A;
+    /* Fonning yashil rangi */
+}
+
+.hidden-checkbox:checked+.custom-checkbox::after {
+    opacity: 1;
+    /* Belgini ko'rsatish */
+}
+
+.custom-scroll {
+    overflow-y: auto; /* Vertikal scroll */
+  }
+  
+  /* Webkit brauzerlar uchun scroll styling */
+  .custom-scroll::-webkit-scrollbar {
+    width: 3px; /* Scroll kengligi */
+  }
+  
+  .custom-scroll::-webkit-scrollbar-thumb {
+    background-color: #B3B7BC; /* Scroll thumb rangi */
+    border-radius: 10px; /* Yumaloqlash */
+  }
+  
+  .custom-scroll::-webkit-scrollbar-track {
+    width: 2px;
+    background-color: #E5E8ED; /* Scroll track (orqa fon) rangi */
+    border-radius: 10px; 
+  }
+  
