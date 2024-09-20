@@ -13,7 +13,7 @@ export default function Footer() {
         <div className="w-full bg-gray-900 text-white">
             <footer className="py-10">
                 <div className="container mx-auto w-[95%] sm:w-[95%] md:w-[92%] lg:w-[80%]">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10 mb-10">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2">
                         {/* HELP Section */}
                         <div className="relative">
                             <h3
@@ -21,7 +21,8 @@ export default function Footer() {
                                 onClick={() => toggleSection('help')}
                             >
                                 HELP
-                                <div className="block lg:hidden ml-2">
+                                {/* Show arrows only for screens 600px and below */}
+                                <div className="block sm:hidden ml-2">
                                     {openSection === 'help' ? (
                                         <HiChevronUp className="text-lg sm:text-xl" />
                                     ) : (
@@ -29,7 +30,11 @@ export default function Footer() {
                                     )}
                                 </div>
                             </h3>
-                            <ul className={`space-y-2 transition-all duration-300 ease-in-out overflow-hidden ${openSection === 'help' ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'} lg:opacity-100 lg:max-h-full lg:overflow-visible`}>
+                            {/* Show the content only if openSection is 'help' OR screen is larger than 600px */}
+                            <ul
+                                className={`space-y-2 transition-all duration-300 ease-in-out overflow-hidden ${openSection === 'help' ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'
+                                    } sm:max-h-full sm:opacity-100`}
+                            >
                                 <li><a href="#" className="hover:text-gray-400">Delivery & returns</a></li>
                                 <li><a href="#" className="hover:text-gray-400">FAQ</a></li>
                                 <li><a href="#" className="hover:text-gray-400">Track order</a></li>
@@ -45,7 +50,7 @@ export default function Footer() {
                                 onClick={() => toggleSection('shop')}
                             >
                                 SHOP
-                                <div className="block lg:hidden ml-2">
+                                <div className="block sm:hidden ml-2">
                                     {openSection === 'shop' ? (
                                         <HiChevronUp className="text-lg sm:text-xl" />
                                     ) : (
@@ -53,7 +58,10 @@ export default function Footer() {
                                     )}
                                 </div>
                             </h3>
-                            <ul className={`space-y-2 transition-all duration-300 ease-in-out overflow-hidden ${openSection === 'shop' ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'} lg:opacity-100 lg:max-h-full lg:overflow-visible`}>
+                            <ul
+                                className={`space-y-2 transition-all duration-300 ease-in-out overflow-hidden ${openSection === 'shop' ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'
+                                    } sm:max-h-full sm:opacity-100`}
+                            >
                                 <li><a href="#" className="hover:text-gray-400">New arrivals</a></li>
                                 <li><a href="#" className="hover:text-gray-400">Trending now</a></li>
                                 <li><a href="#" className="hover:text-gray-400">Sales</a></li>
@@ -68,7 +76,7 @@ export default function Footer() {
                                 onClick={() => toggleSection('contact')}
                             >
                                 GET IN TOUCH
-                                <div className="block lg:hidden ml-2">
+                                <div className="block sm:hidden ml-2">
                                     {openSection === 'contact' ? (
                                         <HiChevronUp className="text-lg sm:text-xl" />
                                     ) : (
@@ -76,7 +84,10 @@ export default function Footer() {
                                     )}
                                 </div>
                             </h3>
-                            <div className={`transition-all duration-300 ease-in-out overflow-hidden ${openSection === 'contact' ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'} lg:opacity-100 lg:max-h-full lg:overflow-visible`}>
+                            <div
+                                className={`transition-all duration-300 ease-in-out overflow-hidden ${openSection === 'contact' ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'
+                                    } sm:max-h-full sm:opacity-100`}
+                            >
                                 <p className="mb-2">Call: (605) 505-0218</p>
                                 <p className="mb-4">Email: hello@vortex.com</p>
                                 <div className="flex space-x-3">
@@ -96,7 +107,7 @@ export default function Footer() {
                                 onClick={() => toggleSection('app')}
                             >
                                 DOWNLOAD OUR APP
-                                <div className="block lg:hidden ml-2">
+                                <div className="block sm:hidden ml-2">
                                     {openSection === 'app' ? (
                                         <HiChevronUp className="text-lg sm:text-xl" />
                                     ) : (
@@ -104,19 +115,17 @@ export default function Footer() {
                                     )}
                                 </div>
                             </h3>
-                            <div className={`transition-all duration-300 ease-in-out overflow-hidden ${openSection === 'app' ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'} lg:opacity-100 lg:max-h-full lg:overflow-visible`}>
-                                <div className="flex flex-col sm:flex-row items-center justify-center space-x-0 sm:space-x-3">
-                                    <div className="flex items-center space-x-2">
-                                        <FaAppStore className="h-10 w-10 -ml-6" /> {/* Adjust margin-left here */}
-                                        <span>App Store</span>
-                                    </div>
-                                    <div className="flex items-center space-x-2 mt-3 sm:mt-0">
-                                        <FaGooglePlay className="h-10 w-10" />
-                                        <span>Google Play</span>
-                                    </div>
+
+                            <div className="flex  justify-between  sm:flex-wrap items-center  space-x-0 sm:space-x-3">
+                                <div className="flex items-center space-x-2">
+                                    <FaAppStore className="h-10 w-10" />
+                                    <span>App Store</span>
+                                </div>
+                                <div className="flex items-center space-x-2 mt-3 sm:mt-0">
+                                    <FaGooglePlay className="h-10 w-10" />
+                                    <span>Google Play</span>
                                 </div>
                             </div>
-
                         </div>
                     </div>
 
@@ -127,11 +136,19 @@ export default function Footer() {
                                 <p className="text-center text-sm">+999 (94) 007 8504</p>
                             </div>
                         </div>
-                        <div className="container mx-auto flex justify-between text-sm mt-4">
-                            <p className="text-left mb-2">© All rights reserved. Made with by Creation Studio</p>
-                            <a href="#" className="hover:text-gray-400 text-right">Go to top</a>
+                        <div className="container mx-auto flex flex-col items-center sm:flex-row justify-between text-sm mt-4">
+                            <p className="hidden sm:block text-left mb-2">© All rights reserved. Made with by Creation Studio</p>
+                            <a
+                                href="#"
+                                className="hover:text-gray-400 text-center sm:text-right"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    scrollToTop();
+                                }}
+                            >
+                                Go to top
+                            </a>
                         </div>
-
                     </div>
                 </div>
             </footer>
