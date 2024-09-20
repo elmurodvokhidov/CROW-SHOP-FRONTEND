@@ -4,7 +4,8 @@ import Home from "./pages/Home";
 import Footer from "./components/Footer";
 import Login from "./pages/Login";
 import ProdactFilter from "./pages/ProdactFilter";
-
+import Single from './pages/singleproducts';
+import Basket from './pages/Basket'
 export default function App() {
   return (
     <div>
@@ -13,6 +14,8 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/products" element={<ProdactFilter />} />
+        <Route path="/single" element={<Single />} />
+        <Route path="/basket" element={<Basket />} />
       </Routes>
       <Footer />
     </div>

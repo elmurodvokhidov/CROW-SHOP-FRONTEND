@@ -3,6 +3,7 @@ import { Link, NavLink } from "react-router-dom";
 import { FaRegUser } from "react-icons/fa";
 import { CiSearch, CiHeart, CiShoppingCart, CiPhone } from "react-icons/ci";
 import { HiMiniBars3CenterLeft } from "react-icons/hi2";
+import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/clerk-react";
 
 export default function Navbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -86,6 +87,19 @@ export default function Navbar() {
 
                         <div className="md:hidden">
                             <HiMiniBars3CenterLeft className="text-2xl cursor-pointer" onClick={toggleMenu} />
+                        </div>
+                        <div>
+                            <SignedOut>
+                                <SignInButton>
+                                    <button className="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-700">
+                                        Sign In / up
+                                    </button>
+                                </SignInButton>
+                            </SignedOut>
+                            <SignedIn>
+                                <UserButton />
+                            </SignedIn>
+
                         </div>
                     </div>
                 </div>
