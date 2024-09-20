@@ -3,6 +3,7 @@ import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import Footer from "./components/Footer";
 import Single from './pages/singleproducts';
+import Basket from './pages/Basket'
 export default function App() {
   return (
     <div>
@@ -11,7 +12,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/single" element={<Single />} />
-
+        <Route path="/basket" element={<Basket />} />
       </Routes>
 
       <Footer />
