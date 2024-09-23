@@ -3,13 +3,13 @@ import { useLocation } from 'react-router-dom';
 import img from '../img/image.png';
 import api from '../config/api'; // API konfiguratsiya import
 import { BsFilterLeft } from "react-icons/bs";
-import { FiMinus, FiPlus } from "react-icons/fi";
-import { HiOutlineXMark } from "react-icons/hi2";
+import isNotProdacts from "../img/image copy.png";
 import { CiHeart } from "react-icons/ci";
-import { CiSearch } from 'react-icons/ci';
-import { Range, getTrackBackground } from 'react-range';
+import { CiSquareChevRight } from "react-icons/ci";
 import { FaStar } from "react-icons/fa";
 import FilterPage from '../components/FilterPage';
+import { CiSquareChevLeft } from "react-icons/ci";
+import Loading from '../components/Loading';
 
 const MIN = 0;
 const MAX = 50;
@@ -18,19 +18,21 @@ function ProductFilter() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [categoryloading, setCategoryloading] = useState(true);
   const [showFilters, setShowFilters] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState([]);
-  const [searchTerm, setSearchTerm] = useState(''); // Qidiruv uchun holat
+  const [searchTerm, setSearchTerm] = useState('');
   const [priceRange, setPriceRange] = useState([1, 50]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [productsPerPage] = useState(2);
+  const [productsPerPage, setProductsPerPage] = useState(2);
   const [selectedColors, setSelectedColors] = useState([]);
   const [selectedSizes, setSelectedSizes] = useState([]);
+  const [selectedBrand, setSelectedBrand] = useState('');
+  const [brandSearchTerm, setBrandSearchTerm] = useState('');
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const type = params.get('type');
-
 
   // Fetch products from API
   const fetchProducts = async () => {
@@ -59,8 +61,11 @@ function ProductFilter() {
       }
     } catch (error) {
       console.error("Kategoriyalarni yuklash xatosi:", error.message);
+    } finally {
+      setCategoryloading(false)
     }
   };
+
 
   useEffect(() => {
     fetchProducts();
@@ -91,27 +96,46 @@ function ProductFilter() {
     return counts;
   }, [products]);
 
-  // Filter products based on type and selected categories
-  const filteredProducts = products.filter(product => {
-    const matchesType = type ? product.type?.includes(type) : true;
-    const matchesCategory = selectedCategories.length > 0 ? selectedCategories.includes(product.category?._id) : true;
-    const matchesPrice = !isNaN(product.price) && product.price >= priceRange[0] && product.price <= priceRange[1];
-    const matchesColor = selectedColors.length > 0 ? selectedColors.some(color => product.color?.includes(color)) : true;
-    const matchesSize = selectedSizes.length > 0 ? selectedSizes.some(size => product.size?.includes(size)) : true; // Size filtri
-    return matchesType && matchesCategory && matchesPrice && matchesColor && matchesSize;
-  });
+  const uniqueBrands = useMemo(() => {
+    const brands = products.map(product => product.brand).filter(Boolean); // Ensure no null brands
+    return [...new Set(brands)];
+  }, [products]);
 
+  // Filter products based on type and selected categories
+  const filteredProducts = useMemo(() => {
+    return products.filter(product => {
+      const matchesType = type ? product.type?.includes(type) : true;
+      const matchesCategory = selectedCategories.length > 0 ? selectedCategories.includes(product.category?._id) : true;
+      const matchesPrice = !isNaN(product.price) && product.price >= priceRange[0] && product.price <= priceRange[1];
+      const matchesColor = selectedColors.length > 0 ? selectedColors.some(color => product.color?.includes(color)) : true;
+      const matchesSize = selectedSizes.length > 0 ? selectedSizes.some(size => product.size?.includes(size)) : true;
+      const matchesBrand = selectedBrand.length > 0 ? selectedBrand.includes(product.brand) : true;
+      return matchesType && matchesCategory && matchesPrice && matchesColor && matchesSize && matchesBrand;
+    });
+  }, [products, type, selectedCategories, priceRange, selectedColors, selectedSizes, selectedBrand]);
 
 
   const indexOfLastProduct = currentPage * productsPerPage;
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
   const currentProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct);
 
-  // Sahifalar sonini hisoblash
   const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
 
-  // Sahifa o'zgartirish funksiyasi
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const paginate = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      paginate(currentPage - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      paginate(currentPage + 1);
+    }
+  };
 
   // Toggle filters or modal based on screen width
   const toggleFilters = () => {
@@ -125,6 +149,12 @@ function ProductFilter() {
   const filteredCategories = categories.filter(category =>
     category.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const filteredBrands = useMemo(() => {
+    return uniqueBrands.filter(brand =>
+      brand.toLowerCase().includes(brandSearchTerm.toLowerCase())
+    );
+  }, [uniqueBrands, brandSearchTerm]);
 
   // Handle category selection
   const handleCategoryChange = (categoryId) => {
@@ -157,6 +187,41 @@ function ProductFilter() {
     });
   };
 
+  // Handle brand checkbox change
+  const handleBrandChange = (event, brand) => {
+    if (event.target.checked) {
+      // Add the brand to the selectedBrand array
+      setSelectedBrand(prevBrands => [...prevBrands, brand]);
+    } else {
+      // Remove the brand from the selectedBrand array
+      setSelectedBrand(prevBrands => prevBrands.filter(selected => selected !== brand));
+    }
+  };
+
+  useEffect(() => {
+    if (showModal) {
+      document.body.style.overflow = 'hidden'; // Sahifaning skrolini bloklash
+    } else {
+      document.body.style.overflow = 'auto'; // Skrolni tiklash
+    }
+
+    return () => {
+      document.body.style.overflow = 'auto'; // Component o'chirilganda skrolni tiklash
+    };
+  }, [showModal]);
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+
+    // Agar currentProducts bo'sh bo'lsa va currentPage 1 dan katta bo'lsa, currentPage ni 1 ga o'zgartiring
+    if (currentProducts.length === 0) {
+      setCurrentPage(1);
+    }
+  }, [currentPage, currentProducts, totalPages]);
+
+
   return (
     <div className='w-full flex justify-center my-7'>
       <div className='w-[95%] sm:w-[95%] md:w-[92%] lg:w-[80%]'>
@@ -187,52 +252,82 @@ function ProductFilter() {
                 </div>
 
                 <div className='hidden sm:flex items-center gap-2 ml5'>
-                  <p className='hidden lg:flex w-20'>Show page</p>
+                  <p className='hidden lg:flex w-[70px]'>Show per</p>
                   <div className='border rounded-[5px] px-3'>
-                    <select id="" className="outline-none w-28 md:w-28 py-[5px]">
-                      <option>12</option>
-                      <option>24</option>
-                      <option>48</option>
-                      <option>72</option>
-                      <option>96</option>
+                    <select
+                      id=""
+                      className="outline-none w-20 md:w-10 py-[5px]"
+                      value={productsPerPage}
+                      onChange={(e) => setProductsPerPage(Number(e.target.value))}
+                    >
+                      <option value={2}>2</option>
+                      <option value={24}>24</option>
+                      <option value={48}>48</option>
+                      <option value={72}>72</option>
+                      <option value={96}>96</option>
                     </select>
                   </div>
+                  <p className='hidden lg:flex w-9'>page</p>
                 </div>
               </div>
-              <div className='flex items-center justify-end md:justify-end w-full md:w-auto'>
-                1 2 3 ... 10 11
+              <div className='flex items-center'>
+                <div className='flex items-center w-full'>
+                  <button
+                    onClick={handlePreviousPage}
+                    disabled={currentPage === 1}
+                    className=""
+                  >
+                    <CiSquareChevLeft className='text-3xl text-[#17696A] hover:text-[#03CEA4]' />
+                  </button>
+                  <p>Page {currentPage} ... {totalPages}</p>
+                  <button
+                    onClick={handleNextPage}
+                    disabled={currentPage === totalPages}
+                    className=""
+                  >
+                    <CiSquareChevRight className='text-3xl text-[#17696A] hover:text-[#03CEA4]' />
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-
-
         {/* Modal for small screens */}
         {showModal && window.innerWidth < 768 && (
-          <div className='fixed top-0 left-0 w-full h-full bg-gray-700 bg-opacity-50 flex items-center z-50'>
-            <div className='bg-white py-4 px-7 rounded-lg w-[320px] max-w-md h-[100%] overflow-hidden'>
-              <FilterPage
-                showModal={showModal}
-                setShowModal={setShowModal}
-                setSearchTerm={setSearchTerm}
-                searchTerm={searchTerm}
-                filteredCategories={filteredCategories}
-                categoryCounts={categoryCounts}
-                MIN={MIN}
-                MAX={MAX}
-                priceRange={priceRange}
-                setPriceRange={setPriceRange}
-                selectedCategories={selectedCategories}
-                handleCategoryChange={handleCategoryChange}
-                selectedColors={selectedColors}
-                handleColorChange={handleColorChange}
-                selectedSizes={selectedSizes}
-                handleSizeChange={handleSizeChange}
-              />
+          <div className='fixed top-0 left-0 w-full h-full bg-gray-700 bg-opacity-50 flex items-center z-50 '>
+            <div className='bg-white py-4 px-7 rounded-lg w-[320px] max-w-md h-full overflow-hidden overflow-y-auto custom-scroll'>
+              <div className='h-full '> {/* Bu joyga skrol qo'shildi */}
+                <FilterPage
+                  showModal={showModal}
+                  setShowModal={setShowModal}
+                  setSearchTerm={setSearchTerm}
+                  searchTerm={searchTerm}
+                  filteredCategories={filteredCategories}
+                  categoryCounts={categoryCounts}
+                  MIN={MIN}
+                  MAX={MAX}
+                  priceRange={priceRange}
+                  setPriceRange={setPriceRange}
+                  selectedCategories={selectedCategories}
+                  handleCategoryChange={handleCategoryChange}
+                  selectedColors={selectedColors}
+                  handleColorChange={handleColorChange}
+                  selectedSizes={selectedSizes}
+                  handleSizeChange={handleSizeChange}
+                  setBrandSearchTerm={setBrandSearchTerm}
+                  brandSearchTerm={brandSearchTerm}
+                  filteredBrands={filteredBrands}
+                  selectedBrand={selectedBrand}
+                  handleBrandChange={handleBrandChange}
+                  categoryloading={categoryloading}
+                  loading={loading}
+                />
+              </div>
             </div>
           </div>
         )}
+
 
         {/* Filter sidebar for larger screens */}
         <div className={`flex ${showFilters ? 'gap-8' : 'gap-0'} md:flex-row`}>
@@ -255,16 +350,27 @@ function ProductFilter() {
                 handleColorChange={handleColorChange}
                 selectedSizes={selectedSizes}
                 handleSizeChange={handleSizeChange}
+                setBrandSearchTerm={setBrandSearchTerm}
+                brandSearchTerm={brandSearchTerm}
+                filteredBrands={filteredBrands}
+                selectedBrand={selectedBrand}
+                handleBrandChange={handleBrandChange}
+                categoryloading={categoryloading}
+                loading={loading}
               />
             </aside>
           )}
 
           {/* Products Grid */}
-          <div className='flex-1'>
+          <div className='w-[100%] flex-1 h-fit sticky top-20'>
             {loading ? (
-              <p>Loading products...</p>
+              <div className='w-[100%] flex items-center justify-center mt-32 mb-32'>
+                <div className=''>
+                  <Loading />
+                </div>
+              </div>
             ) : (
-              <div className={`grid gap-5 grid-cols-2 ${showFilters ? 'sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4' : 'sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5'}`}>
+              <div className={`grid gap-1  grid-cols-2 ${showFilters ? 'sm:grid-cols-3 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4' : 'sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5'}`}>
                 {currentProducts.length > 0 ? (
                   currentProducts.map(product => (
                     <div key={product._id} className="w-full h-[350px] rounded-md overflow-hidden relative">
@@ -288,21 +394,13 @@ function ProductFilter() {
                     </div>
                   ))
                 ) : (
-                  <p>No products found in this category</p>
+                  <div className='max-w-full grid place-items-center h-full'>
+                    <img src={isNotProdacts} alt="Is not products" className="mx-auto" />
+                    <p className='font-semibold text-center'>Biz siz qidirayotgan narsani topa olmadik</p>
+                  </div>
                 )}
               </div>
             )}
-            <div className='flex items-center justify-end w-full'>
-              {Array.from({ length: totalPages }, (_, i) => (
-                <button
-                  key={i + 1}
-                  onClick={() => paginate(i + 1)}
-                  className={`mx-1 px-3 py-1 border ${currentPage === i + 1 ? 'bg-[#17696A] text-white' : 'bg-white text-[#17696A]'}`}
-                >
-                  {i + 1}
-                </button>
-              ))}
-            </div>
           </div>
 
         </div>

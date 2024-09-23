@@ -25,6 +25,11 @@ const service = {
         return response.data.data;
     },
 
+    async fetchCategories() {
+        const response = await api.get('/categries');
+        return response.data.data;
+    },
+
     async fetchProductById(id) {
         const response = await api.get(`/products/${id}`);
         return response.data.data;
