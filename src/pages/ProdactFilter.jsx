@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
+import { useSession } from "@clerk/clerk-react";
 import { useLocation } from 'react-router-dom';
 import img from '../img/image.png';
 import api from '../config/api'; // API konfiguratsiya import
@@ -10,6 +11,7 @@ import { FaStar } from "react-icons/fa";
 import FilterPage from '../components/FilterPage';
 import { CiSquareChevLeft } from "react-icons/ci";
 import Loading from '../components/Loading';
+import Servise from '../config/service';
 
 const MIN = 0;
 const MAX = 50;
@@ -32,14 +34,21 @@ function ProductFilter() {
   const [brandSearchTerm, setBrandSearchTerm] = useState('');
   const location = useLocation();
   const params = new URLSearchParams(location.search);
+  const selectedCategory = params.get('category');
   const type = params.get('type');
+
+
+  const { session } = useSession();
+
+
+  console.log(session);
 
   // Fetch products from API
   const fetchProducts = async () => {
     try {
-      const response = await api.get('/products');
-      if (response.data && response.data.data) {
-        setProducts(response.data.data);
+      const response = await Servise.fetchProductss();
+      if (response.data) {
+        setProducts(response.data);
       } else {
         console.error("Kutilmagan javob tuzilishi:", response);
       }
@@ -53,9 +62,9 @@ function ProductFilter() {
   // Fetch categories from API
   const fetchCategories = async () => {
     try {
-      const response = await api.get('/categries'); // To'g'rilandi
-      if (response.data) {
-        setCategories(response.data);
+      const response = await Servise.fetchCategories();
+      if (response) {
+        setCategories(response);
       } else {
         console.error("Kutilmagan javob tuzilishi:", response);
       }
@@ -71,6 +80,32 @@ function ProductFilter() {
     fetchProducts();
     fetchCategories();
   }, []);
+  console.log(selectedCategory);
+  const addToBasket = async (productId, count = 1) => {
+    try {
+      const token = await session.getToken();
+      console.log(token);
+      const response = await api.post(
+        '/basket/add',
+        { productId, count },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          }
+        }
+      );
+
+      if (response.status === 201) {
+        console.log("Mahsulot basketga qo'shildi:", response?.data);
+      }
+    } catch (error) {
+      console.error("Mahsulotni basketga qo'shishda xato:", error.message);
+    }
+  };
+
+  const handleAddToBasket = (productId) => {
+    addToBasket(productId, 1);
+  }
 
   // Handle window resize to hide modal on larger screens
   useEffect(() => {
@@ -85,7 +120,6 @@ function ProductFilter() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Compute category counts using useMemo for performance optimization
   const categoryCounts = useMemo(() => {
     const counts = {};
     products.forEach(product => {
@@ -101,18 +135,20 @@ function ProductFilter() {
     return [...new Set(brands)];
   }, [products]);
 
-  // Filter products based on type and selected categories
   const filteredProducts = useMemo(() => {
     return products.filter(product => {
+      const matchesSelectCategory = selectedCategory ? product.category?.name?.toLowerCase() === selectedCategory.toLowerCase() : true;
       const matchesType = type ? product.type?.includes(type) : true;
       const matchesCategory = selectedCategories.length > 0 ? selectedCategories.includes(product.category?._id) : true;
       const matchesPrice = !isNaN(product.price) && product.price >= priceRange[0] && product.price <= priceRange[1];
       const matchesColor = selectedColors.length > 0 ? selectedColors.some(color => product.color?.includes(color)) : true;
       const matchesSize = selectedSizes.length > 0 ? selectedSizes.some(size => product.size?.includes(size)) : true;
       const matchesBrand = selectedBrand.length > 0 ? selectedBrand.includes(product.brand) : true;
-      return matchesType && matchesCategory && matchesPrice && matchesColor && matchesSize && matchesBrand;
+
+      return matchesSelectCategory && matchesType && matchesCategory && matchesPrice && matchesColor && matchesSize && matchesBrand;
     });
-  }, [products, type, selectedCategories, priceRange, selectedColors, selectedSizes, selectedBrand]);
+  }, [products, selectedCategory, type, selectedCategories, priceRange, selectedColors, selectedSizes, selectedBrand]);
+
 
 
   const indexOfLastProduct = currentPage * productsPerPage;
@@ -390,6 +426,9 @@ function ProductFilter() {
                           {product.title.length > 27 ? `${product.title.substring(0, 27)}...` : product.title}
                         </h2>
                         <p className='text-[#1E212C] text-[20px] font-semibold'>${product.price}</p>
+                        <button onClick={() => handleAddToBasket(product._id)}>
+                          Basketga qo'shish
+                        </button>
                       </div>
                     </div>
                   ))

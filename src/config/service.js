@@ -1,33 +1,33 @@
 import api from './api';
-import { useSession } from '@clerk/clerk-react';
+// import { useSession } from '@clerk/clerk-react';
 
-const { session } = useSession();
+// const { session } = useSession();
 
-const getToken = async () => {
-    if (session) {
-        const token = await session.getToken();
-        console.log("Token: ", token);
-        return token;
-    }
-};
+// const getToken = async () => {
+//     if (session) {
+//         const token = await session.getToken();
+//         console.log("Token: ", token);
+//         return token;
+//     }
+// };
 
-api.interceptors.request.use((req) => {
-    const token = getToken();
-    if (token) {
-        req.headers.Authorization = token;
-    }
-    return req;
-});
+// api.interceptors.request.use(async (req) => {
+//     const token = await getToken(); 
+//     if (token) {
+//         req.headers.Authorization = `Bearer ${token}`;
+//     }
+//     return req;
+// });
 
 const service = {
     async fetchProductss() {
         const response = await api.get('/products');
-        return response.data.data;
+        return response.data;
     },
 
     async fetchCategories() {
-        const response = await api.get('/categries');
-        return response.data.data;
+        const response = await api.get('/categories');
+        return response.data;
     },
 
     async fetchProductById(id) {
@@ -48,7 +48,19 @@ const service = {
     async deleteProduct(id) {
         const response = await api.delete(`/products/${id}`);
         return response.data.data;
-    }
+    },
+    async addBasket(productId, count) {
+        const response = await api.post(("/basket/add", {
+            productId,
+            count,
+        }));
+        return response.data.data;
+    },
+
+    async getAllBasket() {
+        const response = await api.get('/basket');
+        return response.data;
+    },
 };
 
 export default service;

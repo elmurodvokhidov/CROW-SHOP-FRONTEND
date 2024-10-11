@@ -5,7 +5,7 @@ import Footer from "./components/Footer";
 // import Login from "./pages/Login";
 import ProdactFilter from "./pages/ProdactFilter";
 import Single from './pages/singleproducts';
-import Basket from './pages/Basket'
+import BasketPage from './pages/Basket'
 export default function App() {
   return (
     <div>
@@ -15,7 +15,7 @@ export default function App() {
         {/* <Route path="/login" element={<Login />} /> */}
         <Route path="/products" element={<ProdactFilter />} />
         <Route path="/single" element={<Single />} />
-        <Route path="/basket" element={<Basket />} />
+        <Route path="/basket" element={<BasketPage />} />
       </Routes>
       <Footer />
     </div>

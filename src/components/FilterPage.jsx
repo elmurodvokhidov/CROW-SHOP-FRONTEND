@@ -4,6 +4,7 @@ import { FiMinus, FiPlus } from 'react-icons/fi';
 import { HiOutlineXMark } from 'react-icons/hi2';
 import { HiCheck } from "react-icons/hi";
 import { Range, getTrackBackground } from 'react-range';
+import { useLocation } from 'react-router-dom';
 
 function FilterPage({
     setShowModal,
@@ -30,11 +31,15 @@ function FilterPage({
     loading
 }) {
     const [isCategoryOpen, setIsCategoryOpen] = useState(true)
-    const [isPriceOpen, setIsPriceOpen] = useState(false)
+    const [isPriceOpen, setIsPriceOpen] = useState(true)
     const [isColorOpen, setIsColorOpen] = useState(false)
     const [isSizeOpen, setIsSizeOpen] = useState(false)
     const [isBreandOpen, setIsBreandOpen] = useState(false)
 
+    const location = useLocation();
+
+    // URL-da `category` parametri bor yoki yo'qligini tekshirish
+    const hasCategoryParam = new URLSearchParams(location.search).has('category');
 
 
     return (
@@ -45,63 +50,67 @@ function FilterPage({
                     <HiOutlineXMark className='text-2xl' />
                 </button>
             </div>
-            <div className='border-b-[1px] pb-3'>
-                <div className='flex items-center justify-between mb-1'>
-                    <h1 className='font-semibold'>Kategoriyalar</h1>
-                    <button
-                        className='text-[#17696A]'
-                        onClick={() => setIsCategoryOpen(!isCategoryOpen)}
-                    >
-                        {isCategoryOpen ? <FiMinus /> : <FiPlus />}
-                    </button>
-                </div>
-
-                <div
-                    className={`transition-all duration-500 ease-in ${isCategoryOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}
-                    style={{ overflow: 'hidden' }}
-                >
-                    <div className="relative w-full">
-                        <input
-                            type="text"
-                            placeholder="Kategoriyalarni qidirish..."
-                            className="border font-thin border-gray-300 rounded-md pl-4 pr-9 py-2 w-[100%] outline-[#17696A]"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
-                        <CiSearch className="w-5 h-5 absolute right-3 top-2.5 text-[#1E212C] cursor-pointer" />
-                    </div>
-
-                    {/* Loading holati */}
-                    {categoryloading ? (
-                        <div className='w-[100%] flex items-center justify-center ml-3'>
-                            <div class="relative flex w-64 animate-pulse gap-2 p-4">
-                                <div class="flex-1">
-                                    <div class="h-5 ml-5 w-[90%] rounded-lg bg-slate-200 text-sm"></div>
-                                    <div class="absolute bottom-[17px] left-0 h-5 w-5 rounded-md bg-slate-200"></div>
-                                </div>
-                            </div>
+            <>
+                {/* Agar category parametri mavjud bo'lsa, div ko'rsatmaslik */}
+                {!hasCategoryParam && (
+                    <div className='border-b-[1px] pb-3'>
+                        <div className='flex items-center justify-between mb-1'>
+                            <h1 className='font-semibold'>Kategoriyalar</h1>
+                            <button
+                                className='text-[#17696A]'
+                                onClick={() => setIsCategoryOpen(!isCategoryOpen)}
+                            >
+                                {isCategoryOpen ? <FiMinus /> : <FiPlus />}
+                            </button>
                         </div>
-                    ) : (
-                        <div className="mt-2 pl-3 custom-scroll" style={{ maxHeight: '150px', overflowY: 'auto' }}>
-                            {filteredCategories.length > 0 ? (
-                                filteredCategories.map((category) => (
-                                    <div key={category._id} className='w-full flex items-center'>
-                                        <input
-                                            type="checkbox"
-                                            checked={selectedCategories.includes(category._id)}
-                                            onChange={() => handleCategoryChange(category._id)}
-                                            className='form-checkbox h-4 w-4 text-[#17696A]'
-                                        />
-                                        <h1 className='ml-2'>{category.name} ({categoryCounts[category._id] || 0})</h1>
+
+                        <div
+                            className={`transition-all duration-500 ease-in ${isCategoryOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}
+                            style={{ overflow: 'hidden' }}
+                        >
+                            <div className="relative w-full">
+                                <input
+                                    type="text"
+                                    placeholder="Kategoriyalarni qidirish..."
+                                    className="border font-thin border-gray-300 rounded-md pl-4 pr-9 py-2 w-[100%] outline-[#17696A]"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                                <CiSearch className="w-5 h-5 absolute right-3 top-2.5 text-[#1E212C] cursor-pointer" />
+                            </div>
+
+                            {categoryloading ? (
+                                <div className='w-[100%] flex items-center justify-center ml-3'>
+                                    <div className="relative flex w-64 animate-pulse gap-2 p-4">
+                                        <div className="flex-1">
+                                            <div className="h-5 ml-5 w-[90%] rounded-lg bg-slate-200 text-sm"></div>
+                                            <div className="absolute bottom-[17px] left-0 h-5 w-5 rounded-md bg-slate-200"></div>
+                                        </div>
                                     </div>
-                                ))
+                                </div>
                             ) : (
-                                <p>Kategoriyalar topilmadi</p>
+                                <div className="mt-2 pl-3 custom-scroll" style={{ maxHeight: '150px', overflowY: 'auto' }}>
+                                    {filteredCategories.length > 0 ? (
+                                        filteredCategories.map((category) => (
+                                            <div key={category._id} className='w-full flex items-center'>
+                                                <input
+                                                    type="checkbox"
+                                                    checked={selectedCategories.includes(category._id)}
+                                                    onChange={() => handleCategoryChange(category._id)}
+                                                    className='form-checkbox h-4 w-4 text-[#17696A]'
+                                                />
+                                                <h1 className='ml-2'>{category.name} ({categoryCounts[category._id] || 0})</h1>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p>Kategoriyalar topilmadi</p>
+                                    )}
+                                </div>
                             )}
                         </div>
-                    )}
-                </div>
-            </div>
+                    </div>
+                )}
+            </>
 
             <div className='border-b-[1px] pb-3'>
                 <div className='flex items-center justify-between mt-3'>
@@ -231,10 +240,10 @@ function FilterPage({
                         {isSizeOpen ? <FiMinus /> : <FiPlus />}
                     </button>
                 </div>
-                <div className={` pl-3 transition-all duration-500 ease-in ${isSizeOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}
-                    style={{ overflow: 'hidden' }}>
-                    {['s', 'm', 'l', 'xl', '2xl', '3xl', "plus size"].map(size => (
-                        <div key={size} className='flex items-center mt-2'>
+                <div className={` pl-3 transition-all custom-scroll duration-500 ease-in ${isSizeOpen ? 'max-h-[150px] opacity-100' : 'max-h-0 opacity-0'}`}
+                    style={{ overflow: 'hidden', overflowY: 'auto' }}>
+                    {['s', 'm', 'l', 'xl', '2xl', '3xl', "plus size", '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45'].map(size => (
+                        <div key={size} className='flex items-center'>
                             <input
                                 type="checkbox"
                                 className='form-checkbox h-4 w-4'
@@ -269,10 +278,10 @@ function FilterPage({
                     </div>
                     {loading ? (
                         <div className='w-[100%] flex items-center justify-center mt-4 ml-3'>
-                            <div class="relative flex w-64 animate-pulse gap-2 p-4">
-                                <div class="flex-1">
-                                    <div class="h-5 ml-5 w-[90%] rounded-lg bg-slate-200 text-sm"></div>
-                                    <div class="absolute bottom-[17px] left-0 h-5 w-5 rounded-md bg-slate-200"></div>
+                            <div className="relative flex w-64 animate-pulse gap-2 p-4">
+                                <div className="flex-1">
+                                    <div className="h-5 ml-5 w-[90%] rounded-lg bg-slate-200 text-sm"></div>
+                                    <div className="absolute bottom-[17px] left-0 h-5 w-5 rounded-md bg-slate-200"></div>
                                 </div>
                             </div>
                         </div>
