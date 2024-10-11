@@ -5,7 +5,14 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      screens: {
+        'xs': '475px',  // Qo'shimcha kichik ekranlar uchun o'lcham
+      },
+      borderRadius: {
+        'large': '50%', // Rasmlar yumaloq bo'lishi uchun
+      },
+    },
   },
   plugins: [],
 }

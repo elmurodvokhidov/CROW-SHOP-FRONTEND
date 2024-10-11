@@ -81,7 +81,9 @@ export default function Slider() {
           <div className="overflow-hidden">
             <div
               className="w-full h-[600px] bg-cover bg-center py-16 transition-all ease-in-out duration-700"
-              style={{ backgroundImage: `url(${slides[activeSlide].image})` }}
+              style={{
+                backgroundImage: `url(${slides[activeSlide].image})`,
+              }}
             >
               <div className="container mx-auto pl-40">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 ">
@@ -135,7 +137,7 @@ export default function Slider() {
                     : "border-gray-300 text-gray-500"
                 } rounded-full`}
               >
-                {`0${index + 1}`}
+                {index + 1}
               </button>
             ))}
           </div>
