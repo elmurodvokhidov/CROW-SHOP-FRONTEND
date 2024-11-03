@@ -1,25 +1,30 @@
 import React, { useEffect, useState } from 'react';
-import api from '../config/api'; // Axios konfiguratsiyasi to'g'ri ekanligiga ishonch hosil qiling
+import { useAuthToken } from '../hooks/useAuthToken';
+import { Service } from '../config/service';
 
 const Basket = () => {
   const [basketItems, setBasketItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Savatdagi mahsulotlarni olish
-  const fetchBasket = async () => {
-    try {
-      const response = await api.get('/basket'); // URLni tekshiring
-      console.log(response.data); // Backenddan kelayotgan ma'lumotni tekshirish
-      setBasketItems(response.data.products || []); // Mahsulotlarni olamiz
-      setLoading(false);
-    } catch (err) {
-      setError('Basketni olishda xatolik yuz berdi');
-      setLoading(false);
-    }
-  };
-  console.log(basketItems);
+  const getToken = useAuthToken();
+  const { getAllBasket } = Service(getToken);
+
   useEffect(() => {
+    // Savatdagi mahsulotlarni olish
+    const fetchBasket = async () => {
+      setLoading(true);
+      try {
+        const response = await getAllBasket(); // URLni tekshiring
+        // console.log(response.data); // Backenddan kelayotgan ma'lumotni tekshirish
+        setBasketItems(response.products || []); // Mahsulotlarni olamiz
+      } catch (err) {
+        setError('Basketni olishda xatolik yuz berdi');
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchBasket();
   }, []);
 

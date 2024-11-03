@@ -3,7 +3,8 @@ import { Link, NavLink } from "react-router-dom";
 import { CiSearch, CiHeart, CiShoppingCart, CiPhone, CiUser } from "react-icons/ci";
 import { HiMiniBars3CenterLeft } from "react-icons/hi2";
 import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/clerk-react";
-import Servise from "../config/service";
+import { Service } from "../config/service";
+import { useAuthToken } from "../hooks/useAuthToken";
 
 export default function Navbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -12,10 +13,13 @@ export default function Navbar() {
     const [filteredCategories, setFilteredCategories] = useState([]);
     const [isInputFocused, setIsInputFocused] = useState(false);
 
+    const getToken = useAuthToken();
+    const { fetchCategories } = Service(getToken);
+
     useEffect(() => {
-        const fetchCategories = async () => {
+        const fetchCategoriesFromBackend = async () => {
             try {
-                const response = await Servise.fetchCategories();
+                const response = await fetchCategories();
                 if (response) {
                     setCategories(response);
                 } else {
@@ -26,7 +30,7 @@ export default function Navbar() {
             }
         };
 
-        fetchCategories();
+        fetchCategoriesFromBackend();
     }, []);
 
     useEffect(() => {

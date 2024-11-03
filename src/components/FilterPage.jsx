@@ -132,6 +132,7 @@ function FilterPage({
                             values={priceRange}
                             onChange={values => setPriceRange(values)}
                             renderTrack={({ props, children }) => {
+                                const { key, ...restProps } = props;
                                 const [minValue, maxValue] = priceRange;
                                 const colors = minValue === maxValue
                                     ? ['#17696A', '#D0D0D0']
@@ -139,7 +140,8 @@ function FilterPage({
 
                                 return (
                                     <div
-                                        {...props}
+                                        key={key}
+                                        {...restProps}
                                         className='h-[2px] w-full bg-gray-200 rounded-lg'
                                         style={{
                                             ...props.style,
@@ -155,19 +157,24 @@ function FilterPage({
                                     </div>
                                 );
                             }}
-                            renderThumb={({ props, value, index }) => (
-                                <div
-                                    {...props}
-                                    className='relative w-3 h-3 bg-[#17696A] rounded-full outline-none'
-                                    style={{ ...props.style }}
-                                >
+                            renderThumb={({ props, value, index }) => {
+                                const { key, ...restProps } = props;
+
+                                return (
                                     <div
-                                        className='absolute -top-7 px-4 flex items-center justify-center w-full h-6 bg-gray-800 text-white text-xs rounded'
+                                        key={key}
+                                        {...restProps}
+                                        className='relative w-3 h-3 bg-[#17696A] rounded-full outline-none'
+                                        style={{ ...props.style }}
                                     >
-                                        ${value}
+                                        <div
+                                            className='absolute -top-7 px-4 flex items-center justify-center w-full h-6 bg-gray-800 text-white text-xs rounded'
+                                        >
+                                            ${value}
+                                        </div>
                                     </div>
-                                </div>
-                            )}
+                                )
+                            }}
                         />
                         <div className="flex justify-between w-full mt-4">
                             <input

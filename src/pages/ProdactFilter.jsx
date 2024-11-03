@@ -2,7 +2,6 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useSession } from "@clerk/clerk-react";
 import { useLocation } from 'react-router-dom';
 import img from '../img/image.png';
-import api from '../config/api'; // API konfiguratsiya import
 import { BsFilterLeft } from "react-icons/bs";
 import isNotProdacts from "../img/image copy.png";
 import { CiHeart } from "react-icons/ci";
@@ -11,7 +10,8 @@ import { FaStar } from "react-icons/fa";
 import FilterPage from '../components/FilterPage';
 import { CiSquareChevLeft } from "react-icons/ci";
 import Loading from '../components/Loading';
-import Servise from '../config/service';
+import { Service } from '../config/service';
+import { useAuthToken } from '../hooks/useAuthToken';
 
 const MIN = 0;
 const MAX = 50;
@@ -37,74 +37,58 @@ function ProductFilter() {
   const selectedCategory = params.get('category');
   const type = params.get('type');
 
-
   const { session } = useSession();
-
-
-  console.log(session);
-
-  // Fetch products from API
-  const fetchProducts = async () => {
-    try {
-      const response = await Servise.fetchProductss();
-      if (response.data) {
-        setProducts(response.data);
-      } else {
-        console.error("Kutilmagan javob tuzilishi:", response);
-      }
-    } catch (error) {
-      console.error("Mahsulotlarni yuklash xatosi:", error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Fetch categories from API
-  const fetchCategories = async () => {
-    try {
-      const response = await Servise.fetchCategories();
-      if (response) {
-        setCategories(response);
-      } else {
-        console.error("Kutilmagan javob tuzilishi:", response);
-      }
-    } catch (error) {
-      console.error("Kategoriyalarni yuklash xatosi:", error.message);
-    } finally {
-      setCategoryloading(false)
-    }
-  };
-
+  const getToken = useAuthToken();
+  const { fetchProducts, fetchCategories, addBasket } = Service(getToken);
 
   useEffect(() => {
-    fetchProducts();
-    fetchCategories();
-  }, []);
-  console.log(selectedCategory);
-  const addToBasket = async (productId, count = 1) => {
-    try {
-      const token = await session.getToken();
-      console.log(token);
-      const response = await api.post(
-        '/basket/add',
-        { productId, count },
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          }
+    // Fetch products from Backend
+    const fetchProductsFromBackend = async () => {
+      setLoading(true);
+      try {
+        const response = await fetchProducts();
+        if (response.data) {
+          setProducts(response.data);
+        } else {
+          console.error("Kutilmagan javob tuzilishi:", response);
         }
-      );
-
-      if (response.status === 201) {
-        console.log("Mahsulot basketga qo'shildi:", response?.data);
+      } catch (error) {
+        console.error("Mahsulotlarni yuklash xatosi:", error.message);
+      } finally {
+        setLoading(false);
       }
+    };
+
+    // Fetch categories from Backend
+    const fetchCategoriesFromBackend = async () => {
+      try {
+        const response = await fetchCategories();
+        if (response) {
+          setCategories(response);
+        } else {
+          console.error("Kutilmagan javob tuzilishi:", response);
+        }
+      } catch (error) {
+        console.error("Kategoriyalarni yuklash xatosi:", error.message);
+      } finally {
+        setCategoryloading(false)
+      }
+    };
+
+    fetchProductsFromBackend();
+    fetchCategoriesFromBackend();
+  }, []);
+
+  const handleAddToBasket = async (productId) => {
+    try {
+      if (!session) {
+        alert("Iltimos, avval tizimga kiring yoki ro'yxatdan o'ting.");
+        return; // Agar session bo'lmasa, funksiyani to'xtatish...
+      }
+      await addBasket(productId, 1);
     } catch (error) {
       console.error("Mahsulotni basketga qo'shishda xato:", error.message);
     }
-  };
-
-  const handleAddToBasket = (productId) => {
-    addToBasket(productId, 1);
   }
 
   // Handle window resize to hide modal on larger screens
@@ -148,8 +132,6 @@ function ProductFilter() {
       return matchesSelectCategory && matchesType && matchesCategory && matchesPrice && matchesColor && matchesSize && matchesBrand;
     });
   }, [products, selectedCategory, type, selectedCategories, priceRange, selectedColors, selectedSizes, selectedBrand]);
-
-
 
   const indexOfLastProduct = currentPage * productsPerPage;
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
@@ -256,7 +238,6 @@ function ProductFilter() {
       setCurrentPage(1);
     }
   }, [currentPage, currentProducts, totalPages]);
-
 
   return (
     <div className='w-full flex justify-center my-7'>
